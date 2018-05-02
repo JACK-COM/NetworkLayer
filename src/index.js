@@ -7,7 +7,7 @@
     authenticate: boolean | undefined;
     method: string | undefined
 } */
-export const METHODS = {
+const METHODS = {
     POST: 'POST',
     GET: 'GET',
     DELETE: 'DELETE',
@@ -19,7 +19,7 @@ export const METHODS = {
  * - Creates and configures a Fetch request using an APIRoute object
  * - Triggers the request and returns the JSON from the server
  */
-export default function APIConfig(routes /* : { [x: string]: RouteDefinition } */ ) {
+function APIConfig(routes /* : { [x: string]: RouteDefinition } */ ) {
 
     if (!routes) throw new Error("Missing routes");
     this.routes = routes;
@@ -35,7 +35,7 @@ export default function APIConfig(routes /* : { [x: string]: RouteDefinition } *
 
 APIConfig.prototype.METHODS = METHODS;
 
-export function ConfiguredRoute (route/* : RouteDefinition */) {
+function ConfiguredRoute (route/* : RouteDefinition */) {
     this.route = route;
 
     // with = (params/* : {[x: string]: string} */) => {
@@ -100,3 +100,8 @@ export function ConfiguredRoute (route/* : RouteDefinition */) {
 
     return this;
 }
+
+module.exports = {
+    APIConfig,
+    METHODS
+};
