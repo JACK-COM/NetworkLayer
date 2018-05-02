@@ -5,10 +5,11 @@ An abstraction layer for handling network requests/responses.
 
 ## How do you use it?
 ```javascript
-import NetworkLayer, { METHODS } from '@jackcom/app-network-layer'; 
+import NetworkLayer from '@jackcom/app-network-layer'; 
 
 // Define your endpoints in an object (the most basic example of a route is below).
 // Endpoints/Routes require certain keys: see `RouteDefinition` interface below
+const METHODS = NetworkLayer.METHODS; // GET, POST, DELETE, PUT, PATCH
 const endpoints = {
     getUsers: {
         url: params => `https://my.api.domain/${params.userId}`,
@@ -17,7 +18,8 @@ const endpoints = {
 }
 
 // Instantiate your layer
-const config = new NetworkLayer(endpoints); 
+const APIConfig = NetworkLayer.APIConfig;
+const config = new APIConfig(endpoints); 
 
 // Use it with an endpoint
 config
