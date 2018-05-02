@@ -26,7 +26,6 @@ export default class APIConfig {
         this.routes = routes;
     }
 
-    static METHODS = METHODS
 
     request(key/* : string */)/* : ConfiguredRoute */ {
         const route = this.routes[key];
@@ -34,6 +33,8 @@ export default class APIConfig {
         return new ConfiguredRoute(route);
     }
 }
+
+APIConfig.METHODS = METHODS;
 
 export class ConfiguredRoute {
     
