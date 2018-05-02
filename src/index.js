@@ -1,5 +1,3 @@
-// API Configuration
-
 /* interface RouteDefinition {
     acceptHeaders: string | undefined;
 	contentType: string | undefined;
@@ -13,6 +11,11 @@ const METHODS = {
     DELETE: 'DELETE',
     PATCH: 'PATCH',
     PUT: 'PUT',
+}
+
+export default {
+    APIConfig,
+    METHODS
 }
 
 /**
@@ -100,8 +103,3 @@ function ConfiguredRoute (route/* : RouteDefinition */) {
 
     return this;
 }
-
-module.exports = {
-    APIConfig,
-    METHODS
-};
