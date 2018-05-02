@@ -8,14 +8,6 @@
     method: string | undefined
 } */
 
-export const METHODS = {
-	POST: 'POST',
-	GET: 'GET',
-	DELETE: 'DELETE',
-	PATCH: 'PATCH',
-	PUT: 'PUT',
-}
-
 /**
  * - Creates and configures a Fetch request using an APIRoute object
  * - Triggers the request and returns the JSON from the server
@@ -25,6 +17,14 @@ export default class APIConfig {
     constructor(routes/* : { [x: string]: RouteDefinition } */) {
         if (!routes) throw new Error("Missing routes");
         this.routes = routes;
+    }
+
+    METHODS = {
+        POST: 'POST',
+        GET: 'GET',
+        DELETE: 'DELETE',
+        PATCH: 'PATCH',
+        PUT: 'PUT',
     }
 
     request(key/* : string */)/* : ConfiguredRoute */ {

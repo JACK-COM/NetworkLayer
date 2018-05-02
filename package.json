@@ -1,6 +1,6 @@
 {
   "name": "@jackcom/app-network-layer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A lightweight promise generator that allows you to whip up endpoints and make client-side requests",
   "main": "lib/networklayer.js",
   "files": [
