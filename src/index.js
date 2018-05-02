@@ -7,7 +7,7 @@
     authenticate: boolean | undefined;
     method: string | undefined
 } */
-const METHODS = {
+export const METHODS = {
     POST: 'POST',
     GET: 'GET',
     DELETE: 'DELETE',
@@ -35,7 +35,7 @@ export default class APIConfig {
     }
 }
 
-class ConfiguredRoute {
+export class ConfiguredRoute {
     
     constructor(route/* : RouteDefinition */) {
         this.route = route;
