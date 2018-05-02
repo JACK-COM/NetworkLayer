@@ -19,7 +19,7 @@ export default class APIConfig {
         this.routes = routes;
     }
 
-    METHODS = {
+    static METHODS = {
         POST: 'POST',
         GET: 'GET',
         DELETE: 'DELETE',
