@@ -19,31 +19,25 @@ export const METHODS = {
  * - Creates and configures a Fetch request using an APIRoute object
  * - Triggers the request and returns the JSON from the server
  */
-export default class APIConfig {
+export default function APIConfig(routes /* : { [x: string]: RouteDefinition } */ ) {
 
-    constructor(routes/* : { [x: string]: RouteDefinition } */) {
-        if (!routes) throw new Error("Missing routes");
-        this.routes = routes;
-    }
+    if (!routes) throw new Error("Missing routes");
+    this.routes = routes;
 
-
-    request(key/* : string */)/* : ConfiguredRoute */ {
+    this.request = (key /* : string */ ) /* : ConfiguredRoute */ => {
         const route = this.routes[key];
         if (!route) throw new Error(`Route ${key} is not defined: check Routes initialization`)
         return new ConfiguredRoute(route);
     }
 }
 
-APIConfig.METHODS = METHODS;
+APIConfig.prototype.METHODS = METHODS;
 
-export class ConfiguredRoute {
-    
-    constructor(route/* : RouteDefinition */) {
-        this.route = route;
-    }
+export function ConfiguredRoute (route/* : RouteDefinition */) {
+    this.route = route;
 
     // with = (params/* : {[x: string]: string} */) => {
-    with(params){
+    this.with = params => {
         // Get an object ready to make a request
         const method = this.route.method || METHODS.GET;
         const staticSuccessResponse = { resolved: true };
