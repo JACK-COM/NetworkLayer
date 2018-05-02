@@ -7,6 +7,13 @@
     authenticate: boolean | undefined;
     method: string | undefined
 } */
+const METHODS = {
+    POST: 'POST',
+    GET: 'GET',
+    DELETE: 'DELETE',
+    PATCH: 'PATCH',
+    PUT: 'PUT',
+}
 
 /**
  * - Creates and configures a Fetch request using an APIRoute object
@@ -19,13 +26,7 @@ export default class APIConfig {
         this.routes = routes;
     }
 
-    static METHODS = {
-        POST: 'POST',
-        GET: 'GET',
-        DELETE: 'DELETE',
-        PATCH: 'PATCH',
-        PUT: 'PUT',
-    }
+    static METHODS = METHODS
 
     request(key/* : string */)/* : ConfiguredRoute */ {
         const route = this.routes[key];
