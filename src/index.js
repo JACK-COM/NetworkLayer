@@ -29,6 +29,8 @@ export default function APIConfig(routes /* : { [x: string]: RouteDefinition } *
         if (!route) throw new Error(`Route ${key} is not defined: check Routes initialization`)
         return new ConfiguredRoute(route);
     }
+
+    return this;
 }
 
 APIConfig.prototype.METHODS = METHODS;
@@ -95,4 +97,6 @@ export function ConfiguredRoute (route/* : RouteDefinition */) {
                 Promise.reject(data)
             );
     }
+
+    return this;
 }
