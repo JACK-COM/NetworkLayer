@@ -1,5 +1,5 @@
 {
-  "name": "app-network-layer",
+  "name": "@jackcom/app-network-layer",
   "version": "0.1.0",
   "description": "A lightweight promise generator that allows you to whip up endpoints and make client-side requests",
   "main": "index.js",
