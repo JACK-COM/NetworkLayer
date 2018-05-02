@@ -17,6 +17,10 @@
     "layer"
   ],
   "author": "JACKCOM",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JACK-COM/NetworkLayer.git"
+  },
   "license": "WTFPL",
   "devDependencies": {
     "babel-core": "^6.26.0",
