@@ -1,9 +1,18 @@
 # Application Network Request Layer
 
+## Table Of Contents
+1. [What is it?](#what-is-it?)
+2. [How do you use it?](#how-do-you-use-it?)
+3.
+
 ## What is it?
 An abstraction layer for handling network requests/responses. 
 
 ## How do you use it?
+### Installation
+    npm i --save @jackcom/app-network-layer
+
+### Usage
 ```javascript
 import NetworkLayer from '@jackcom/app-network-layer'; 
 
@@ -21,14 +30,21 @@ const endpoints = {
 const APIConfig = NetworkLayer.APIConfig;
 const config = new APIConfig(endpoints); 
 
-// Use it with an endpoint
+// Use it with an endpoint:
+config
+    .getUsers({ userId: mySource.userId }) // returns a Promise object
+    .then( ... )
+
+// OR
 config
     .request("getUsers")
-    .with({ userId: mySource.userId })
-    .then( ... ) // returns a Promise object
+    .with({ userId: mySource.userId }) // returns a Promise object
+    .then( ... ) 
 ```
-# API/Terminology
-## `RouteDefinition` interface 
+
+
+## Terminology
+### `RouteDefinition` interface 
 A `RouteDefinition` defines a single resource endpoint. When you instantiate a `NetworkLayer`, you will supply it an object whose keys are strings, and whose values are `RouteDefinitions`. All keys are shown below:
 ```javascript
 interface RouteDefinition {
@@ -45,12 +61,16 @@ Parameters are largely self-explanatory
 * `url`: *required* function that takes params and returns a string. See example in `How Do You Use It` section above
 * `authenticate`: If used, this tells the `ConfiguredRoute` to check your params in `request( ...).with(params)` for a 'token' key to map to `headers["Authorization"]` (as "Bearer: {{ params.token }}").
 * `method`: maps to `headers["method"]`; defaults to `GET`
-## Library Classes:
-### `NetworkLayer` class
-This object is instantiated with your routes. When you call `config.request( ... )`, this class uses the supplied key to find the route, with which it instantiates a `ConfiguredRoute` object to handle the request.
-### `ConfiguredRoute` class
-A `ConfiguredRoute` represents a single endpoint. It has one method, `with`, which uses your parameters to build a request object (e.g. construct the request URL, map content to headers). `ConfiguredRoute` returns a promise, which will default to `{ success: true }` if a remote server only sent back an "OK" response without a body.
-# FAQs
+
+### Library Classes:
+* `ConfiguredRoute`: represents a single endpoint. 
+    * `(method) with(requestParams: any)`: 
+        * uses `requestParams` to build a request object (i.e. construct the request URL, map content to headers). `ConfiguredRoute` returns a promise
+        * returns a `Promise` that defaults to `{ success: true }` if your remote response does not contain a body.
+* `NetworkLayer` class: Parent class that is instantiated with your routes: is responsible for spawning `ConfiguredRoute` objects when a request is made
+
+
+## FAQs
 ## Why would you use this Library?
 This is ideal when you need to centralize the management of your
 application's routes. This system means that if server endpoints change, you only
