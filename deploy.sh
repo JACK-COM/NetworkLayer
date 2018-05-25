@@ -1,4 +1,4 @@
-#!///bin/bash
+#!//bin/bash
 
 # compile JS
 npm run build && 
