@@ -27,11 +27,21 @@ function APIConfig(routes /* : { [x: string]: RouteDefinition } */ ) {
     if (!routes) throw new Error("Missing routes");
     this.routes = routes;
 
+    const routeKeys = Object.keys(routes);
+
+    if (routeKeys.length === 0) throw new Error("APIConfig needs at least one valid route definition");
+
     this.request = (key /* : string */ ) /* : ConfiguredRoute */ => {
         const route = this.routes[key];
         if (!route) throw new Error(`Route ${key} is not defined: check Routes initialization`)
         return new ConfiguredRoute(route);
     }
+
+    // Append route keys to object so accessibe as APIConfig.route(params).then(...);
+    Object.keys(routes).forEach(routeName => {
+        const route = this.routes[routeName];
+        this[routeName] = new ConfiguredRoute(route).with;
+    })
 
     return this;
 }
@@ -89,7 +99,9 @@ function ConfiguredRoute (route/* : RouteDefinition */) {
                 const responseForDeleteRequest = (method === METHODS.DELETE);
                 if (responseForDeleteRequest && responseCode < 400) return staticSuccessResponse;
                 // At this point, the response *better* have a body. Or else.
-                return data.json();
+                // if content-type is json, return json
+                if (headers.Accept === 'application/json') return data.json();
+                return data;
             })
             // Check for API failures and reject response if response status error
             .then(response => response.hasOwnProperty("error") ?
