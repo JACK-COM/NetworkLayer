@@ -3,9 +3,9 @@
 ## Table Of Contents
 1. [What is it?](#what-is-it)
 2. [How do you use it?](#how-do-you-use-it)
-3. [API](#api)
-3. [Terminology](#terminology)
-3. [FAQs](#faqs)
+3. [API](#api-(available-via-import))
+4. [Terminology](#terminology)
+5. [FAQs](#faqs)
 
 ## What is it?
 An abstraction layer for handling network requests/responses. 
