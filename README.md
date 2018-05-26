@@ -3,6 +3,7 @@
 ## Table Of Contents
 1. [What is it?](#what-is-it)
 2. [How do you use it?](#how-do-you-use-it)
+3. [API](#api)
 3. [Terminology](#terminology)
 3. [FAQs](#faqs)
 
