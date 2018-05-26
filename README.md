@@ -1,9 +1,10 @@
 # Application Network Request Layer
 
 ## Table Of Contents
-1. [What is it?](#what-is-it?)
-2. [How do you use it?](#how-do-you-use-it?)
-3.
+1. [What is it?](#what-is-it)
+2. [How do you use it?](#how-do-you-use-it)
+3. [Terminology](#terminology)
+3. [FAQs](#faqs)
 
 ## What is it?
 An abstraction layer for handling network requests/responses. 
@@ -42,10 +43,15 @@ config
     .then( ... ) 
 ```
 
+## API (available via import):
+Note that although this guide uses **NetworkLayer** for clarity, the default export is not named.
+* `NetworkLayer`: default library export 
+* `NetworkLayer.APIConfig`: the class to instantiate: [route handler](#apiconfig-class) and promise-returner
+* `NetworkLayer.METHODS`: dictionary/key-value map of [request methods](#request-methods)
 
 ## Terminology
 ### `RouteDefinition` interface 
-A `RouteDefinition` defines a single resource endpoint. When you instantiate a `NetworkLayer`, you will supply it an object whose keys are strings, and whose values are `RouteDefinitions`. All keys are shown below:
+A `RouteDefinition` defines a single resource endpoint. All properties are shown below:
 ```javascript
 interface RouteDefinition {
     acceptHeaders: string | undefined;
@@ -55,27 +61,34 @@ interface RouteDefinition {
     method: string | undefined
 }
 ```
-Parameters are largely self-explanatory
+Explanation: 
 * `acceptHeaders`: maps to `headers["Accept"]`; defaults to `application/json`
 * `contentType`: maps to `headers["Content-Type"]`; defaults to `application/json;charset=utf-8`
 * `url`: *required* function that takes params and returns a string. See example in `How Do You Use It` section above
 * `authenticate`: If used, this tells the `ConfiguredRoute` to check your params in `request( ...).with(params)` for a 'token' key to map to `headers["Authorization"]` (as "Bearer: {{ params.token }}").
 * `method`: maps to `headers["method"]`; defaults to `GET`
 
-### Library Classes:
-* `ConfiguredRoute`: represents a single endpoint. 
-    * `(method) with(requestParams: any)`: 
-        * uses `requestParams` to build a request object (i.e. construct the request URL, map content to headers). `ConfiguredRoute` returns a promise
-        * returns a `Promise` that defaults to `{ success: true }` if your remote response does not contain a body.
-* `NetworkLayer` class: Parent class that is instantiated with your routes: is responsible for spawning `ConfiguredRoute` objects when a request is made
+### `APIConfig` class
+This is the primary class you will instantiate with your `routes` object. You only need one instance, though you can instantiate as many as you wish.
 
+### `Request Methods`
+The following methods can be specified (as members of `NetworkLayer.METHODS`) when defining a route:
+```typescript
+const METHODS = {
+    POST: 'POST',
+    GET: 'GET',
+    DELETE: 'DELETE',
+    PATCH: 'PATCH',
+    PUT: 'PUT',
+};
+```
 
 ## FAQs
-## Why would you use this Library?
+### Why would you use this Library?
 This is ideal when you need to centralize the management of your
 application's routes. This system means that if server endpoints change, you only
 need to modify where your endpoints are defined, instead of in every view that may have 
 been calling the server directly.
 
-## Why _shouldn't_ you use this Library?
+### Why _shouldn't_ you use this Library?
 ~~Because you know better~~ Probably because you don't need to solve/have never encountered the issue it purports to solve. 
