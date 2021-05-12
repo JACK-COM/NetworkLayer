@@ -5,7 +5,7 @@ module.exports = {
     entry: path.resolve(__dirname, 'src/index.js'),
     output: {
         library: "networklayer",
-        libraryTarget: "umd",
+        libraryTarget: "amd",
         libraryExport: "default",
         path: path.resolve(__dirname, 'lib'),
         filename: "networklayer.js"
@@ -16,9 +16,9 @@ module.exports = {
             exclude: /(node_modules)/,
             use: {
                 loader: 'babel-loader',
-                options: {
+                /* options: {
                     presets: ['babel-preset-env']
-                }
+                } */
             }
         }]
     },

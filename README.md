@@ -1,47 +1,150 @@
-# Application Network Request Layer
+# Application Network Request Layer 
 
-## Table Of Contents
-1. [What is it?](#what-is-it)
-2. [How do you use it?](#how-do-you-use-it)
-3. [API](#api-available-via-import)
-4. [Terminology](#terminology)
-5. [FAQs](#faqs)
+> **IMPORTANT:** version `0.5.0` simplifies the library and may introduce some breaking changes.
+> If you're looking for the old documentation [look here](README_v-041.md).
+
+[![npm][npm]][npm-url]
 
 ## What is it?
-An abstraction layer for handling network requests/responses. 
+**TLDR:** An abstraction layer for handling network requests/responses. 
+
+A complex single-page application (SPA) might make a few requests for data: authenticating a user,
+fetching lists, and so on. When used, this library provides a single exit point for all SPA network
+requests, which enables easy debugging, logging, and error-handling of outgoing traffic. 
+
+## Table Of Contents
+1. [How do you use it?](#how-do-you-use-it)
+2. [API](#api-available-via-import)
+3. [Terminology](#terminology)
+4. [FAQs](#faqs)
 
 ## How do you use it?
 ### Installation
     npm i --save @jackcom/app-network-layer
 
 ### Usage
-```javascript
-import NetworkLayer from '@jackcom/app-network-layer'; 
 
-// Define your endpoints in an object (the most basic example of a route is below).
-// Endpoints/Routes require certain keys: see `RouteDefinition` interface below
-const METHODS = NetworkLayer.METHODS; // GET, POST, DELETE, PUT, PATCH
-const endpoints = {
-    getUsers: {
-        url: params => `https://my.api.domain/${params.userId}`,
-        method: METHODS.GET
-    }
+> **Hint:** you can handle each of these sections in separate files, and merge them wherever you create your `APIConfig` instance. The following example is entirely mocked (i.e. not a real API that I know of), and is meant to convey the idea of using the `APIConfig` instance.
+
+#### 1: Define Your endpoints. 
+
+```javascript
+const MY_BASE_URL = "https://api.example.com"
+
+// Your 'endpoints' config object will be used by the APIConfig instance. 
+// Name the keys intuitively, since they will be converted into method names on 
+// the instance.
+const endpointsConfig = {
+  
+  getUserById: {
+    // URL is required on all objects. It must be a function (with any
+    // logic and/or arguments) that returns a url string. 
+    url: ({ id }) => `${MY_BASE_URL}/users/${id}`,
+    method: APIConfig.METHODS.POST,
+  },
+  
+  listUsers: {
+    // (Optional) You can omit the "method" key for "GET" requests
+    url: () => `${MY_BASE_URL}/users`
+  },
+  
+  updateUser: { 
+    // "APIConfig.METHODS" contains (get, post, put, patch, delete)
+    url: ({ id }) => `${MY_BASE_URL}/users/${id}`,
+    method: APIConfig.METHODS.PATCH,
+  },
+  
+  uploadFile: {
+    // You can statically override some request headers here, or on a per-request
+    // basis by supplying the overrideable key in your request params
+    contentType: "multipart/form-data",
+    redirect: "follow",
+    url: () => `${MY_BASE_URL}/files/upload`,
+    method: APIConfig.METHODS.POST
+  },
+};
+  
+```
+
+#### 2: Create an instance of `APIConfig`. 
+This will return a singleton that consumes every outgoing request/response for your SPA.
+```javascript
+import APIconfig from "./api-config";
+
+const api = new APIConfig(endpoints);
+
+// Now 'api' has methods that return Promises. You can use them predictably:
+api
+  .listUsers()
+  .then(users => ... )
+  .catch(error =>  ... )
+
+api
+  .getUserById({ id: ... })
+  .then(user => ... )
+  .catch(error =>  ... )
+
+api
+  .updateUser({ id: ... })
+  .then(response => ... )
+  .catch(error =>  ... )
+
+// OR 
+
+const response = await api.updateUser({ id: ... });
+
+const [user, users] = await Promise.all([
+    api.getUserById({ id: ... }),
+    api.listUsers(),
+]);
+```  
+  
+### THAT'S IT! 
+If you also want the ability to handle all api errors in one place, read on.
+  
+  
+#### 3: (Optional) Global error handling 
+You can supply an error-handler function to capture any failed api request. The `handler` must also return a Promise (e.g. rejected promise with custom error message; or a fallback success response).
+
+##### 3a. Define your global error handler
+```javascript
+/**
+ * Implementor (i.e. YOU)-defined global promise error handler
+ * @param {object} error Error returned from `fetch` or your target API
+ * @param {number} responseCode Request response code. If -1, request didn't go through.
+ * @param {Request} requestParams `Fetch` `Request` object. Can be used to retry the failed request.
+ */
+function onGlobalError(error, responseCode, requestParams) {
+  console.log('Failed API Request:', error);
+  // [ additional logic follows, e.g. any of the following:
+    //   [return] myExternalLoggerService.log(error)
+
+    //   [return] Promise.reject(myCustomErrorMessage) 
+
+    //   [return] Promise.resolve(myCustomSuccessMessage) 
+
+  // You can even retry the failed request!
+    //   [return] fetch(requestParams)
+}
+```
+  
+##### 3b. Supply endpoints AND the error-handler to your API config instance.
+This is functionally similar to (2) above, except you're adding a new argument to the constructor.
+So we use the `onGlobalError` we defined above in (3a):
+
+```javascript
+const api = new APIConfig(endpoints, onGlobalError);
+
+try {
+    // Now if the following request fails,
+    const user = await api.getUserById({ id: badIdDoesNotExist });
+}  catch (e) {
+    // console logs => // 'Failed API request', ... (( error data ))
+
+    // Note: if 'onGlobalError' doesn't return a rejected promise, 
+    // any code in this 'catch' block will never run.
 }
 
-// Instantiate your layer
-const APIConfig = NetworkLayer.APIConfig;
-const config = new APIConfig(endpoints); 
-
-// Use it with an endpoint:
-config
-    .getUsers({ userId: mySource.userId }) // returns a Promise object
-    .then( ... )
-
-// OR
-config
-    .request("getUsers")
-    .with({ userId: mySource.userId }) // returns a Promise object
-    .then( ... ) 
 ```
 
 ## API (available via import):
