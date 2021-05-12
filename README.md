@@ -3,8 +3,6 @@
 > **IMPORTANT:** version `0.6.0` simplifies the library and may introduce some breaking changes.
 > If you're looking for the old documentation [look here](README_v-041.md).
 
-[![npm][npm]][npm-url]
-
 ## What is it?
 **TLDR:** An abstraction layer for handling network requests/responses. 
 
