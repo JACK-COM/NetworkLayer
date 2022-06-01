@@ -1,6 +1,6 @@
 {
   "name": "@jackcom/app-network-layer",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A lightweight client-side server interface. Provides a single point for implementing global promise error-handling in a Javascript application",
   "main": "lib/index.js",
   "files": [
