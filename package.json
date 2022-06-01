@@ -1,14 +1,17 @@
 {
   "name": "@jackcom/app-network-layer",
-  "version": "0.6.0",
+  "version": "2.0.0",
   "description": "A lightweight client-side server interface. Provides a single point for implementing global promise error-handling in a Javascript application",
-  "main": "src/index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
     "/lib"
   ],
   "scripts": {
-    "test": "jest --watchAll",
-    "build": "node build.js"
+    "test": "jest --watchAll --testTimeout=300000 --detectOpenHandles",
+    "build": "rm -rf lib/ && tsc",
+    "build:preview": "clear && npm run build && npm run preview",
+    "preview": "npm pack && rm -rf *.tgz"
   },
   "keywords": [
     "request",
@@ -23,16 +26,16 @@
   },
   "license": "WTFPL",
   "devDependencies": {
-    "@babel/core": "^7.14.0",
-    "@babel/plugin-proposal-class-properties": "^7.13.0",
-    "@babel/plugin-transform-runtime": "^7.13.15",
-    "@babel/preset-env": "^7.14.1",
-    "@babel/preset-react": "^7.13.13",
-    "babel-jest": "^26.6.3",
-    "babel-loader": "^8.2.2",
-    "babel-preset-stage-2": "^6.24.1",
-    "jest": "^26.6.3",
-    "webpack": "^5.37.0",
-    "webpack-cli": "^4.7.0"
+    "@babel/preset-env": "^7.15.6",
+    "@babel/preset-react": "^7.14.5",
+    "@babel/preset-typescript": "^7.15.0",
+    "@types/jest": "^27.0.1",
+    "jest": "^27.2.0",
+    "npm-auto-version": "^1.0.0",
+    "ts-loader": "^9.2.5",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "axios": "^0.27.2"
   }
 }

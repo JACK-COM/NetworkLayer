@@ -19,7 +19,7 @@ An abstraction layer for handling network requests/responses.
 import NetworkLayer from '@jackcom/app-network-layer'; 
 
 // Define your endpoints in an object (the most basic example of a route is below).
-// Endpoints/Routes require certain keys: see `RouteDefinition` interface below
+// Endpoints/Routes require certain keys: see `Endpoint` interface below
 const METHODS = NetworkLayer.METHODS; // GET, POST, DELETE, PUT, PATCH
 const endpoints = {
     getUsers: {
@@ -51,10 +51,10 @@ Note that although this guide uses **NetworkLayer** for clarity, the default exp
 * `NetworkLayer.METHODS`: dictionary/key-value map of [request methods](#request-methods)
 
 ## Terminology
-### `RouteDefinition` interface 
-A `RouteDefinition` defines a single resource endpoint. All properties are shown below:
+### `Endpoint` interface 
+A `Endpoint` defines a single resource endpoint. All properties are shown below:
 ```javascript
-interface RouteDefinition {
+interface Endpoint {
     acceptHeaders: string | undefined;
     contentType: string | undefined;
     url: Function;

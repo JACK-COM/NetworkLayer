@@ -1,20 +1,83 @@
 # Application Network Request Layer 
 
-> **IMPORTANT:** version `0.6.0` simplifies the library and may introduce some breaking changes.
+> **Change notes:**\
+> **version** `0.6.0` simplifies the library and may introduce some breaking changes.
 > If you're looking for the old documentation [look here](README_v-041.md).
+> 
+> **version** `2.x.x` rewrites the underlying library and *definitely* introduces breaking changes. It also adds `axios` for more a stable api as well as predictable updates to the library. 
+
+- [Application Network Request Layer](#application-network-request-layer)
+  - [What is it?](#what-is-it)
+  - [Why does it?](#why-does-it)
+  - [How do you use it?](#how-do-you-use-it)
+    - [Installation](#installation)
+    - [Usage](#usage)
+      - [1: Define Your endpoints.](#1-define-your-endpoints)
+      - [2: Create an instance of `APIConfig`.](#2-create-an-instance-of-apiconfig)
+      - [3: (Optional) Global error handling](#3-optional-global-error-handling)
+        - [3a. Define your global error handler](#3a-define-your-global-error-handler)
+        - [3b. Supply endpoints AND the error-handler to your API config instance.](#3b-supply-endpoints-and-the-error-handler-to-your-api-config-instance)
+    - [THAT'S IT!](#thats-it)
+  - [API (available via import):](#api-available-via-import)
+  - [Terminology](#terminology)
+    - [`RouteDefinition` interface](#routedefinition-interface)
+    - [`APIConfig` class](#apiconfig-class)
+    - [`Request Methods`](#request-methods)
+  - [FAQs](#faqs)
+    - [Why would you use this Library?](#why-would-you-use-this-library)
+    - [Why _shouldn't_ you use this Library?](#why-shouldnt-you-use-this-library)
 
 ## What is it?
-**TLDR:** An abstraction layer for handling network requests/responses. 
+**TLDR:**
+1. Create something that looks like this:
+```typescript
+const myEndpoints = {
+  // POST request
+  getUserById: {
+    url: ({ id }) => `https://api.example.com/users/${id}`,
+    method: "post"
+  },
+  
+  // GET request
+  listUsers: {
+    url: () => `https://api.example.com/users`
+  },
+ 
+}
+```
 
-A complex single-page application (SPA) might make a few requests for data: authenticating a user,
-fetching lists, and so on. When used, this library provides a single exit point for all SPA network
-requests, which enables easy debugging, logging, and error-handling of outgoing traffic. 
+2. Use the library's `APIConfig` export to turn it into this:
+```typescript
+const api = APIConfig(myEndpoints);
 
-## Table Of Contents
-1. [How do you use it?](#how-do-you-use-it)
-2. [API](#api-available-via-import)
-3. [Terminology](#terminology)
-4. [FAQs](#faqs)
+// async/await
+await api.listUsers();
+
+// promise then/catch
+api
+  .getUserById({ id: ... })
+  .then(user => ... )
+  .catch(error =>  ... )
+```
+
+Manage your endpoints in a single place by turning a JS object-literal into an object for making REST requests.
+
+---
+## Why does it?
+This was created in an era before various tools (e.g. `GraphQL`) reduced the need for storing REST api endpoints in [mainly front-end] applications. 
+
+With that said, if you still reuse `https://some-url` in multiple files like this:
+
+```typescript
+axios.get('https://some-url', someParams)
+
+// or
+
+fetch('https://some-url', someParams)
+```
+then this may be for you.
+
+---
 
 ## How do you use it?
 ### Installation
@@ -22,12 +85,14 @@ requests, which enables easy debugging, logging, and error-handling of outgoing 
 
 ### Usage
 
-> **Hint:** you can handle each of these sections in separate files, and merge them wherever you create your `APIConfig` instance. The following example is entirely mocked (i.e. not a real API that I know of), and is meant to convey the idea of using the `APIConfig` instance.
+> **Hint:** you can create each of these object in separate files, and merge them wherever you create your `APIConfig` instance.\
+> The following example is entirely mocked (i.e. not a real API that I know of), and is meant to convey the idea of using the `APIConfig` instance.
 
 #### 1: Define Your endpoints. 
 
-```javascript
-const MY_BASE_URL = "https://api.example.com"
+```typescript
+// Optional if you want to avoid case-sensitivity errors
+import { METHODS } from "@jackcom/network-layer";
 
 // Your 'endpoints' config object will be used by the APIConfig instance. 
 // Name the keys intuitively, since they will be converted into method names on 
@@ -37,92 +102,63 @@ const endpointsConfig = {
   getUserById: {
     // URL is required on all objects. It must be a function (with any
     // logic and/or arguments) that returns a url string. 
-    url: ({ id }) => `${MY_BASE_URL}/users/${id}`,
-    method: APIConfig.METHODS.POST,
+    url: ({ id }) => `https://api.example.com/users/${id}`,
+    method: METHODS.POST, // or "post"
   },
   
-  listUsers: {
-    // (Optional) You can omit the "method" key for "GET" requests
-    url: () => `${MY_BASE_URL}/users`
-  },
-  
-  updateUser: { 
-    // "APIConfig.METHODS" contains (get, post, put, patch, delete)
-    url: ({ id }) => `${MY_BASE_URL}/users/${id}`,
-    method: APIConfig.METHODS.PATCH,
-  },
-  
-  uploadFile: {
-    // You can statically override some request headers here, or on a per-request
-    // basis by supplying the overrideable key in your request params
-    contentType: "multipart/form-data",
-    redirect: "follow",
-    url: () => `${MY_BASE_URL}/files/upload`,
-    method: APIConfig.METHODS.POST
-  },
 };
   
 ```
 
 #### 2: Create an instance of `APIConfig`. 
 This will return a singleton that consumes every outgoing request/response for your SPA.
-```javascript
+```typescript
 import APIconfig from "./api-config";
 
 const api = new APIConfig(endpoints);
 
-// Now 'api' has methods that return Promises. You can use them predictably:
-api
-  .listUsers()
-  .then(users => ... )
-  .catch(error =>  ... )
-
+// Now 'api' has methods that return Promises.
 api
   .getUserById({ id: ... })
   .then(user => ... )
   .catch(error =>  ... )
 
-api
-  .updateUser({ id: ... })
-  .then(response => ... )
-  .catch(error =>  ... )
-
 // OR 
 
-const response = await api.updateUser({ id: ... });
-
-const [user, users] = await Promise.all([
-    api.getUserById({ id: ... }),
-    api.listUsers(),
-]);
+const response = await api.getUserById({ id: ... });
 ```  
-  
-### THAT'S IT! 
-If you also want the ability to handle all api errors in one place, read on.
-  
+
+
+
   
 #### 3: (Optional) Global error handling 
 You can supply an error-handler function to capture any failed api request. The `handler` must also return a Promise (e.g. rejected promise with custom error message; or a fallback success response).
 
 ##### 3a. Define your global error handler
-```javascript
+```typescript
 /**
  * Implementor (i.e. YOU)-defined global promise error handler
- * @param {object} error Error returned from `fetch` or your target API
- * @param {number} responseCode Request response code. If -1, request didn't go through.
- * @param {Request} requestParams `Fetch` `Request` object. Can be used to retry the failed request.
+ * @param error Error wrapped in an object returned from the library
+ * @param config Parameters used to make the failed request.
+ * @param config.url Failed request endpoint
  */
-function onGlobalError(error, responseCode, requestParams) {
-  console.log('Failed API Request:', error);
-  // [ additional logic follows, e.g. any of the following:
-    //   [return] myExternalLoggerService.log(error)
+function onGlobalError(
+  error: { message: any }, 
+  config: { url: string; config: RequestConfig }
+) {
+    // [ You can do any of the following in here
+      
+    // Call an external logging service with the error
+    myExternalLoggerService.log(error)
 
-    //   [return] Promise.reject(myCustomErrorMessage) 
+    // and/or return a custom error so your program can continue
+    return Promise.reject("NETWORK_RESPONSE_ERROR") 
 
-    //   [return] Promise.resolve(myCustomSuccessMessage) 
+    // or a custom success message so the caller never sees the error
+    return Promise.resolve(myCustomSuccessMessage) 
 
-  // You can even retry the failed request!
-    //   [return] fetch(requestParams)
+    // You can even retry the failed request!
+    return apiConfig.muhUsers()
 }
 ```
   
@@ -130,21 +166,23 @@ function onGlobalError(error, responseCode, requestParams) {
 This is functionally similar to (2) above, except you're adding a new argument to the constructor.
 So we use the `onGlobalError` we defined above in (3a):
 
-```javascript
+```typescript
 const api = new APIConfig(endpoints, onGlobalError);
 
 try {
     // Now if the following request fails,
     const user = await api.getUserById({ id: badIdDoesNotExist });
 }  catch (e) {
-    // console logs => // 'Failed API request', ... (( error data ))
-
     // Note: if 'onGlobalError' doesn't return a rejected promise, 
     // any code in this 'catch' block will never run.
 }
 
 ```
 
+### THAT'S IT! 
+If you also want the ability to handle all api errors in one place, read on.
+  
+---
 ## API (available via import):
 Note that although this guide uses **NetworkLayer** for clarity, the default export is not named.
 * `NetworkLayer`: default library export 
@@ -154,10 +192,10 @@ Note that although this guide uses **NetworkLayer** for clarity, the default exp
 ## Terminology
 ### `RouteDefinition` interface 
 A `RouteDefinition` defines a single resource endpoint. All properties are shown below:
-```javascript
-interface RouteDefinition {
+```jaEndpoint
+intEndpointinition {
     acceptHeaders: string | undefined;
-    contentType: string | undefined;
+    contenEndpoint undefined;
     url: Function;
     authenticate: boolean | undefined;
     method: string | undefined
@@ -174,14 +212,14 @@ Explanation:
 This is the primary class you will instantiate with your `routes` object. You only need one instance, though you can instantiate as many as you wish.
 
 ### `Request Methods`
-The following methods can be specified (as members of `NetworkLayer.METHODS`) when defining a route:
+The following methods can be specified (as members of the exported `METHODS`) when defining a route:
 ```typescript
 const METHODS = {
-    POST: 'POST',
-    GET: 'GET',
-    DELETE: 'DELETE',
-    PATCH: 'PATCH',
-    PUT: 'PUT',
+    POST: 'post',
+    GET: 'get',
+    DELETE: 'delete',
+    PATCH: 'patch',
+    PUT: 'put',
 };
 ```
 
