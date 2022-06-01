@@ -14,10 +14,10 @@
     - [Usage](#usage)
       - [1: Define Your endpoints.](#1-define-your-endpoints)
       - [2: Create an instance of `APIConfig`.](#2-create-an-instance-of-apiconfig)
-    - [THAT'S IT!](#thats-it)
       - [3: (Optional) Global error handling](#3-optional-global-error-handling)
         - [3a. Define your global error handler](#3a-define-your-global-error-handler)
         - [3b. Supply endpoints AND the error-handler to your API config instance.](#3b-supply-endpoints-and-the-error-handler-to-your-api-config-instance)
+    - [THAT'S IT!](#thats-it)
   - [API (available via import):](#api-available-via-import)
   - [Terminology](#terminology)
     - [`RouteDefinition` interface](#routedefinition-interface)
@@ -28,17 +28,45 @@
     - [Why _shouldn't_ you use this Library?](#why-shouldnt-you-use-this-library)
 
 ## What is it?
-**TLDR:** 
-* Turns a JS object-literal into an object for making REST requests
-  * Allows management of your endpoint URLs in a single place
+**TLDR:**
+1. Create something that looks like this:
+```typescript
+const myEndpoints = {
+  // POST request
+  getUserById: {
+    url: ({ id }) => `https://api.example.com/users/${id}`,
+    method: "post"
+  },
+  
+  // GET request
+  listUsers: {
+    url: () => `https://api.example.com/users`
+  },
+ 
+}
+```
+
+2. Use the library's `APIConfig` export to turn it into this:
+```typescript
+const api = APIConfig(myEndpoints);
+
+// async/await
+await api.listUsers();
+
+// promise then/catch
+api
+  .getUserById({ id: ... })
+  .then(user => ... )
+  .catch(error =>  ... )
+```
+
+Manage your endpoints in a single place by turning a JS object-literal into an object for making REST requests.
 
 ---
 ## Why does it?
-This was created in an era before tools like `graphQL`, which -- by and large -- reduce or negate the need for large numbers of REST api endpoints to be stored in single-page applications. 
+This was created in an era before various tools (e.g. `GraphQL`) reduced the need for storing REST api endpoints in [mainly front-end] applications. 
 
-Maybe. 
-
-That said; if you still find yourself doing stuff like:
+With that said, if you still reuse `https://some-url` in multiple files like this:
 
 ```typescript
 axios.get('https://some-url', someParams)
@@ -47,7 +75,7 @@ axios.get('https://some-url', someParams)
 
 fetch('https://some-url', someParams)
 ```
-and `https://some-url` appears in a lot of different files, this may be for you. 
+then this may be for you.
 
 ---
 
@@ -57,7 +85,8 @@ and `https://some-url` appears in a lot of different files, this may be for you.
 
 ### Usage
 
-> **Hint:** you can handle each of these sections in separate files, and merge them wherever you create your `APIConfig` instance. The following example is entirely mocked (i.e. not a real API that I know of), and is meant to convey the idea of using the `APIConfig` instance.
+> **Hint:** you can create each of these object in separate files, and merge them wherever you create your `APIConfig` instance.\
+> The following example is entirely mocked (i.e. not a real API that I know of), and is meant to convey the idea of using the `APIConfig` instance.
 
 #### 1: Define Your endpoints. 
 
@@ -77,25 +106,6 @@ const endpointsConfig = {
     method: METHODS.POST, // or "post"
   },
   
-  listUsers: {
-    // (Optional) You can omit the "method" key for "GET" requests
-    url: () => `https://api.example.com/users`
-  },
-  
-  updateUser: { 
-    // "METHODS" contains (get, post, put, patch, delete)
-    url: ({ id }) => `https://api.example.com/users/${id}`,
-    method: METHODS.PATCH, // or "patch"
-  },
-  
-  uploadFile: {
-    // You can statically override some request headers here, or on a per-request
-    // basis by supplying the overrideable key in your request params
-    contentType: "multipart/form-data",
-    redirect: "follow",
-    url: () => `https://api.example.com/files/upload`,
-    method: METHODS.POST
-  },
 };
   
 ```
@@ -107,35 +117,19 @@ import APIconfig from "./api-config";
 
 const api = new APIConfig(endpoints);
 
-// Now 'api' has methods that return Promises. You can use them predictably:
-api
-  .listUsers()
-  .then(users => ... )
-  .catch(error =>  ... )
-
+// Now 'api' has methods that return Promises.
 api
   .getUserById({ id: ... })
   .then(user => ... )
   .catch(error =>  ... )
 
-api
-  .updateUser({ id: ... })
-  .then(response => ... )
-  .catch(error =>  ... )
-
 // OR 
 
-const response = await api.updateUser({ id: ... });
-
-const [user, users] = await Promise.all([
-    api.getUserById({ id: ... }),
-    api.listUsers(),
-]);
+const response = await api.getUserById({ id: ... });
 ```  
-  
-### THAT'S IT! 
-If you also want the ability to handle all api errors in one place, read on.
-  
+
+
+
   
 #### 3: (Optional) Global error handling 
 You can supply an error-handler function to capture any failed api request. The `handler` must also return a Promise (e.g. rejected promise with custom error message; or a fallback success response).
@@ -185,6 +179,10 @@ try {
 
 ```
 
+### THAT'S IT! 
+If you also want the ability to handle all api errors in one place, read on.
+  
+---
 ## API (available via import):
 Note that although this guide uses **NetworkLayer** for clarity, the default export is not named.
 * `NetworkLayer`: default library export 

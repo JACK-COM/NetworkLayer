@@ -17,4 +17,4 @@ import APIConfig from "./api.config";
  * only argument. It should also return a promise (resolve/rejected per implementation needs).
  */
 export default APIConfig;
-
+export { METHODS } from "./api.config";
