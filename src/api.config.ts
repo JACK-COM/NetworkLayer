@@ -12,6 +12,8 @@ import {
 /** @internal */
 const noOp = () => {};
 
+export * from "./types";
+
 /**
  * - Creates and configures a `Fetch` request using an APIRoute object
  * - Triggers the request and returns the JSON from the server
