@@ -1,13 +1,12 @@
 /** HTTP Request Verbs */
-import APIConfig from "./configured-api";
-import methods from "./methods";
+import APIConfig from "./api.config";
 
 /**
  * - Creates and configures a `Fetch` request using an APIRoute object
  * - Triggers the request and returns the JSON from the server
  * @param {object} routes A key-value store of server endpoints. Each key in
  * `routes` will become a method on the new `APIConfig` instance. The value of each
- * key will be a `RouteDefinition` with one or more of the following properties:
+ * key will be a `Endpoint` with one or more of the following properties:
  *  - `acceptHeaders`: string | undefined;
  *  - `contentType`: string | undefined;
  *  - `url`: Function;
@@ -19,5 +18,3 @@ import methods from "./methods";
  */
 export default APIConfig;
 
-/* HTTP Request methods */
-export const METHODS = methods;

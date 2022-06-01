@@ -1,29 +1,34 @@
-const webpack = require('webpack');
-const path = require('path');
-// 
-module.exports = {
-    entry: path.resolve(__dirname, 'src/index.js'),
-    output: {
-        library: "networklayer",
-        libraryTarget: "amd",
-        libraryExport: "default",
-        path: path.resolve(__dirname, 'lib'),
-        filename: "networklayer.js"
+const webpack = require("webpack");
+const path = require("path");
+
+const config = {
+  entry: "./src/index.ts",
+
+  output: {
+    library: {
+      name: "networklayer",
+      type: "umd",
+      export: "default",
     },
-    module: {
-        rules: [{
-            test: /\.js$/,
-            exclude: /(node_modules)/,
-            use: {
-                loader: 'babel-loader',
-                /* options: {
-                    presets: ['babel-preset-env']
-                } */
-            }
-        }]
-    },
-    optimization: {
-        minimize: true
-    },
-    mode: "production"
-}
+
+    path: path.resolve(__dirname, "lib"),
+
+    filename: "bundle.js",
+  },
+
+  module: {
+    rules: [
+      {
+        test: /\.ts(x)?$/,
+        loader: "ts-loader",
+        exclude: /node_modules/,
+      },
+    ],
+  },
+
+  resolve: {
+    extensions: [".tsx", ".ts", ".js"],
+  },
+};
+
+module.exports = config;
